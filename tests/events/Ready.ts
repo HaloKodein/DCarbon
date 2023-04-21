@@ -1,16 +1,17 @@
-import { Block, BlockContext } from '../../src/core/block/'
+import { Listener } from '../../src/structures/Listener'
+import { BlockContext } from '../../src/core/block/'
+import { Client } from 'discord.js'
 
-export class Ready extends Block {
+export class Ready extends Listener<'ready'> {
   constructor(context: BlockContext) {
-    super(context)
+    super(context, {
+      once: true,
+      event: 'ready'
+    })
   }
 
-  override async onLoad() {
-    console.log('Eu fui realmente carregado!!')
-  }
-
-  override async onUnload() {
-    console.log('Eu fui realmente descarregado!!')
+  invoke(client: Client) {
+    console.log(client.user?.username)
   }
 }
 

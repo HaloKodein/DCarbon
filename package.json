@@ -4,8 +4,7 @@
   "description": "A discord.js helper",
   "scripts": {
     "dev": "ts-node-dev --respawn ./src/index.ts --transpileOnly",
-    "start": "ts-node --transpileOnly ./src/index.ts",
-    "build": "tsc ./src/**/**/*.ts"
+    "start": "ts-node --transpileOnly ./src/index.ts"
   },
   "keywords": [
     "dcarbon"

@@ -1,21 +1,27 @@
-import { basename } from 'path'
+import { basename, join } from 'path'
 import { preload, walk } from '../../strategy/Loader'
 
 import { Block } from './Block'
+import { container } from '../Container'
+import { Client } from 'discord.js'
 
-export interface BlockLoaderContext {
+export interface BlockStoreContext {
   name: string
   root: string
   skipExistingBlock?: boolean
 }
 
-export class BlockLoader extends Map<string, Block> {
+export class BlockStore extends Map<string, Block> {
   private name: string
   private root: string
 
   private skipExistingBlock: boolean
 
-  constructor({ name, root, skipExistingBlock }: BlockLoaderContext) {
+  static parseRoot(...rest: string[]): string {
+    return join(process.cwd(), ...rest)
+  }
+
+  constructor({ name, root, skipExistingBlock }: BlockStoreContext) {
     super()
 
     this.name = name
@@ -25,12 +31,18 @@ export class BlockLoader extends Map<string, Block> {
       ?? true
   }
 
+  registerContainerClient(client: Client): BlockStore {
+    container.client = client
+
+    return this
+  }
+
   private async insert(block: Block) {
     const alreadyHas = this.has(block.name)
 
     if (alreadyHas && this.skipExistingBlock) {
       return console.log(
-        `[BlockLoader -> ${this.name}] Block ${block.name} has been skiped.`)
+        `[BlockStore -> ${this.name}] Block ${block.name} has been skiped.`)
     } else if (alreadyHas && !this.skipExistingBlock) {
       this.unload(block)
     }
@@ -38,29 +50,32 @@ export class BlockLoader extends Map<string, Block> {
     this.set(block.name, block)
 
     console.log(
-      `[BlockLoader -> ${this.name}] Block ${block.name} has been loaded.`)
+      `[BlockStore -> ${this.name}] Block ${block.name} has been loaded.`)
 
     await block.onLoad()
   }
 
-  private async unload(block: Block) {
+  async unload(block: Block) {
     this.delete(block.name)
 
     console.log(
-      `[BlockLoader -> ${this.name}] Block ${block.name} has been unloaded.`)
+      `[BlockStore -> ${this.name}] Block ${block.name} has been unloaded.`)
 
     await block.onUnload()
   }
 
-  private async load(path: string) {
+  async load(path: string) {
     const name = basename(path)
 
+    const store = this
+
     for await (const ctor of preload(path))
-      await this.insert(new ctor({ name, path }))
+      await this.insert(
+        new ctor({ name, path, store }))
   }
 
-  async loadAll() {
-    for await (const path of walk(this.root))
+  async loadAll(root?: string) {
+    for await (const path of walk(root ?? this.root))
       this.load(path)
   }
 }
