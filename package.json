@@ -1,0 +1,25 @@
+{
+  "name": "dcarbon",
+  "version": "1.0.0",
+  "description": "A discord.js helper",
+  "scripts": {
+    "dev": "ts-node-dev --respawn ./src/index.ts --transpileOnly",
+    "start": "ts-node --transpileOnly ./src/index.ts",
+    "build": "tsc ./src/**/**/*.ts"
+  },
+  "keywords": [
+    "dcarbon"
+  ],
+  "author": "HaloKodein",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^18.15.12",
+    "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
+    "tslib": "^2.5.0",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "discord.js": "^14.9.0"
+  }
+}
